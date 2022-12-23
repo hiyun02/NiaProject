@@ -36,7 +36,7 @@ public class PageController {
     @GetMapping(value="/index")
     public String index() {
         log.info("index start!");
-        return "index";
+        return "/index";
     }
     @GetMapping(value="/profile")
     public String profile() {

@@ -10,4 +10,5 @@ public class TemporaryDTO {
     private String t_pernum; // 수용가능인원수
     private String t_lat;// 위도
     private String t_lon; //경도
+    private double dist;
 }

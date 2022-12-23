@@ -8,4 +8,7 @@ public class GoodsDTO {
     public String g_go_na; //품묵명
     public String g_adr;//주소
     public String g_tel; //대표전화번호
+    private String lat;
+    private String lon;
+    private double dist;
 }

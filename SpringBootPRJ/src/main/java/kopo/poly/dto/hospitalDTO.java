@@ -15,5 +15,7 @@ public class hospitalDTO {
     private String h_lat; //위도
     private String h_lon; //경도
 
+    private double h_dis; //현위치와의 거리
+
 
 }
