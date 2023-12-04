@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords"
+          content="airbnb, booking, city guide, directory, events, hotel booking, listings, marketing, places, restaurant, restaurant">
+    <meta name="description" content="Guido - Directory & Listing HTML Template">
+    <meta name="CreativeLayers" content="ATFN">
+    <!-- css file -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Responsive stylesheet -->
+    <link rel="stylesheet" href="/css/responsive.css">
+    <!-- Title -->
+    <title>혼잡도 정보 제공</title>
+    <!-- Favicon -->
+    <link href="/images/favicon.ico" sizes="128x128" rel="shortcut icon" type="image/x-icon"/>
+    <link href="/images/favicon.ico" sizes="128x128" rel="shortcut icon"/>
+    <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=sf035zxjis"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+    <!-- 부트스랩5 CDN 및 네비게이션 리소스 파일 시작 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="/css/nav.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+
+
+</head>
+<body>
+
+<style>
+
+
+    @media screen and (min-width: 768px) {
+        /* 웹: 지도를 원래 위치로 */
+        #map-container {
+            order: 1; /* 원래 위치로 */
+        }
+    }
+
+    @media screen and (max-width: 767px) {
+        /* 모바일: 지도를 맨 위로 */
+        #map-container {
+            order: -1; /* 맨 위로 */
+        }
+    }
+
+
+</style>
+
+<div class="wrapper">
+    <div class="preloader"></div>
+    <!-- Search Field Modal -->
+    <th:block th:replace="header"></th:block>
+    <div class="body_content" style="margin-top: 3%">
+        <!-- Listing Grid View -->
+        <section id="feature-property" class="our-listing-list-v4 pt0 pb0">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-xl-3 mt30">
+                        <div class="half_map_area_content">
+                            <div class="row">
+                                <div class="form-group" style="padding-top: 3%">
+                                    <button type="button" class="btn btn-outline-secondary active"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#report" id="report4"
+                                            style="width: 100%; height: 50px;">제보하기
+                                    </button>
+                                </div>
+                            </div>
+                            <h4 id="title" style="padding-top: 2%">광화문·덕수궁 현황</h4>
+                            <p id="report_explanation"></p>
+                            <p id="explanation" style="padding-top: 2%"></p>
+
+                            <div class="row">
+                                <h5 id="prediction_title">시간별 인구 예측</h5>
+                                <div class="form-group" style="height: 250px;" id="prediction_1">
+                                    <canvas id="prediction"></canvas>
+                                </div>
+                                <h5 id="prediction_title2">성비별 인구</h5>
+                                <div class="form-group" style="height: 400px; width: 400px;" id="prediction_2">
+                                    <canvas id="prediction2"></canvas>
+                                </div>
+                            </div>
+                            <div class="row" id="appendDiv">
+                                <h3>제보 리스트</h3>
+                                <!-- 이걸로 돌려 버리기 -->
+                                <div class="col-md-6 col-lg-6 col-xl-12 pl0 pr0" th:each="report : ${reportDTOList}">
+                                    <div class="feat_property">
+                                        <div class="thumb">
+                                            <img class="img-whp" th:src="${report.filePath}" alt="lg2.jpg">
+                                            <div class="thmb_cntnt">
+                                                <ul class="tag2 mb0">
+                                                    <li class="list-inline-item">
+                                                        <a th:if="${report.density == '여유'}" href="#"
+                                                           style="background-color: green; text-decoration-line: none;">여유</a>
+                                                        <a th:if="${report.density == '보통'}" href="#"
+                                                           style="background-color: green; text-decoration-line: none;">보통</a>
+                                                        <a th:if="${report.density == '약간 붐빔'}" href="#"
+                                                           style="background-color: orange; text-decoration-line: none;">약간붐빔</a>
+                                                        <a th:if="${report.density == '붐빔'}" href="#"
+                                                           style="background-color: red; text-decoration-line: none;">붐빔</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="details">
+                                            <div class="tc_content">
+                                                <p th:text="'소속 : ' + ${report.belong}"></p>
+                                                <p th:text="'성명 : ' + ${report.name}"></p>
+                                                <p th:text="'전화번호 : ' + ${report.phone}"></p>
+                                                <p th:text="'제보일 : ' + ${report.reportDT}"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 돌리기 종료 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-9" id="map-container">
+                        <div class="half_map_area">
+                            <div class="home_two_map">
+                                <div class="map-canvas half_style" id="map" data-map-zoom="9"
+                                     data-map-scroll="true"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <th:block th:replace="modal"></th:block>
+
+
+</div>
+<!-- Wrapper End -->
+<script src="/js/jquery-3.6.0.js"></script>
+<script src="/js/jquery-migrate-3.0.0.min.js"></script>
+<script src="/js/popper.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/jquery.mmenu.all.js"></script>
+<script src="/js/ace-responsive-menu.js"></script>
+<script src="/js/bootstrap-select.min.js"></script>
+<script src="/js/snackbar.min.js"></script>
+<script src="/js/simplebar.js"></script>
+<script src="/js/parallax.js"></script>
+<script src="/js/scrollto.js"></script>
+<script src="/js/jquery-scrolltofixed-min.js"></script>
+<script src="/js/jquery.counterup.js"></script>
+<script src="/js/wow.min.js"></script>
+<script src="/js/progressbar.js"></script>
+<script src="/js/timepicker.js"></script>
+<script src="/js/crowd.js"></script>
+<!-- Google Maps -->
+<!--<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAz77U5XQuEME6TpftaMdX0bBelQxXRlM&callback=initMap"></script>-->
+<script src="/js/infobox.min.js"></script>
+<!--<script src="/js/markerclusterer.js"></script>-->
+<!--<script src="/js/maps.js"></script>-->
+<!-- Custom script for all pages -->
+<script src="/js/script.js"></script>
+<script th:inline="javascript">
+
+
+    let cityList = [[${cityDTOList}]]; // 주요도시 가져오기
+
+    /* 현재 내 위치 가져오기 */
+    let result; // 현재 내 위치 가져오는 변수
+
+
+    $(document).ready(function () {
+        function getCurrentPostion() {
+            return new Promise(function (resolve, reject) {
+                navigator.geolocation.getCurrentPosition(resolve, reject);
+            });
+        }
+
+        getCurrentPostion().then(point => initMap(point));
+    });
+
+
+    /* modal 이미지 클릭하면 file 업로드 시작 */
+    function fileUpload() {
+
+        document.getElementById("file").click()
+
+        document.getElementById('file').addEventListener('change', readURL, true);
+
+        //파일 객체 읽어와서 배열에 담아줌
+        function readURL(e) {
+            let files = document.getElementById("file").files[0];
+            let reader = new FileReader();
+            reader.onloadend = function () {
+                //아이디에 src 읽어온 파일 url로 교체 preview
+                $('#imgView').attr('src', reader.result);
+            }
+            if (files) {
+                reader.readAsDataURL(this.files[0]);
+            }
+        }
+    }
+
+
+    function initMap(pos) {
+
+        console.log(pos);
+        /* 지도 생성 */
+        let map = new naver.maps.Map('map', {
+            center: new naver.maps.LatLng(pos.coords.latitude, pos.coords.longitude),
+            zoom: 13,
+            mapTypeControl: true,
+            mapTypeControlOptions: {
+                style: naver.maps.MapTypeControlStyle.DROPDOWN
+            }
+        });
+
+        let param = {};
+
+        function findNearestCity(pos) {
+
+            for (let i = 0; i < cityList.length; i++) {
+
+                let proj = map.getProjection();
+                let end = new naver.maps.LatLng(cityList[i].lat, cityList[i].lng);
+                let start = new naver.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+
+                let distance = parseInt(proj.getDistance(start, end) * 0.001);
+
+                console.log(cityList[i].location + ": " + distance);
+
+                if (distance <= 1) {
+                    param = {
+                        title: cityList[i].location
+
+                    }
+                    break;
+                }
+            }
+        }
+
+        findNearestCity(pos);
+
+        const ctx = document.getElementById('prediction');
+        const ctx2 = document.getElementById('prediction2');
+
+        function getSeoul() {
+            $.ajax({
+                url: "/crowd/getSeoulApi",
+                data: param,
+                type: 'post',
+                success: function (data) {
+                    $.ajax({
+                        url: "/crowd/getMaxReport",
+                        data: param,
+                        type: 'post',
+                        success: function (maxReport) {
+                            test();
+                            $.ajax({
+                                url: "/crowd/getReportList",
+                                data: param,
+                                type: 'post',
+                                success: function (data) {
+                                    if (data != null) {
+                                        $("#appendDiv").empty();
+
+                                        for (let i = 0; i < data.length; i++) {
+                                            let appendDiv = "";
+                                            appendDiv += '<div class="col-md-6 col-lg-6 col-xl-12 pl0 pr0">';
+                                            appendDiv += '<div class="feat_property">';
+                                            appendDiv += '<div class="thumb">';
+                                            appendDiv += '<img class="img-whp" src="' + data[i].filePath + '" alt="lg2.jpg">';
+                                            appendDiv += '<div class="thmb_cntnt">';
+                                            appendDiv += '<ul class="tag2 mb0">';
+                                            appendDiv += '<li class="list-inline-item">';
+                                            if (data[i].density == "여유") {
+                                                appendDiv += '<a href="#" style="background-color: green; text-decoration-line: none;">여유</a>';
+                                            } else if (data[i].density == "보통") {
+                                                appendDiv += '<a href="#" style="background-color: green; text-decoration-line: none;">보통</a>';
+                                            } else if (data[i].density == "약간 붐빔") {
+                                                appendDiv += '<a href="#" style="background-color: orange; text-decoration-line: none;">약간 붐빔</a>';
+                                            } else {
+                                                appendDiv += '<a href="#" style="background-color: red; text-decoration-line: none;">붐빔</a>';
+                                            }
+                                            appendDiv += '</li>';
+                                            appendDiv += '</ul>';
+                                            appendDiv += '</div>';
+                                            appendDiv += '</div>';
+                                            appendDiv += '<div class="details">';
+                                            appendDiv += '<div class="tc_content">';
+                                            appendDiv += '<p> 소속 : ' + data[i].belong + '</p>';
+                                            appendDiv += '<p> 성명 : ' + data[i].name + '</p>';
+                                            appendDiv += '<p> 전화번호 : ' + data[i].phone + '</p>';
+                                            appendDiv += '<p> 제보일 : ' + data[i].reportDT + '</p>';
+                                            appendDiv += '</div>';
+                                            appendDiv += '</div>';
+                                            appendDiv += '</div>';
+                                            appendDiv += '</div>';
+
+                                            $("#appendDiv").append(appendDiv);
+                                        }
+                                    }
+
+                                }
+                            });
+                            function test() {
+                                for (let i = 0; i < cityList.length; i++) {
+                                    let proj = map.getProjection();
+                                    let end = new naver.maps.LatLng(cityList[i].lat, cityList[i].lng);
+                                    let start = new naver.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+
+                                    let distance = parseInt(proj.getDistance(start, end) * 0.001);
+                                    let con = 2;
+
+                                    console.log(param.title);
+                                    if ((distance <= con && maxReport == "약간 붐빔" && param.title == cityList[i].area_NM) || (distance <= con && cityList[i].area_CONGEST_LVL == "약간 붐빔" && param.title == cityList[i].area_NM)) {
+                                        // console.log("거리 : " + distance, "city : " + cityList[i].area_CONGEST_LVL +' maxReport : ' + maxReport +'어디냐 : ' + cityList[i].area_NM);
+
+                                        alert(cityList[i].area_NM + " 지역은 현재 도보에 주의가 필요합니다.");
+                                    } else if ((distance <= con && maxReport == "붐빔" && param.title == cityList[i].area_NM) || (distance <= con && cityList[i].area_CONGEST_LVL == "붐빔" && param.title == cityList[i].area_NM)) {
+                                        alert(cityList[i].area_NM + " 지역은 현재 밀집도가 매우 높습니다. 해당 지역 방문을 자제하세요.");
+
+
+                                    }
+                                }
+
+                            }
+
+                            if (maxReport == "보통") {
+                                $("#title").text(data.area_NM + '(' + maxReport + ')');
+                                if (data.area_CONGEST_LVL == "여유") {
+//                                $("#report_explanation").text("시민제보로 인한 단계 격상");
+                                    $("#report_explanation").css("color", "red");
+
+                                } else {
+//                                $("#report_explanation").text("시민제보로 인한 하향 조정");
+                                    $("#report_explanation").css("color", "blue");
+                                }
+                                $("#explanation").html('<strong>' + "사람이 몰려있을 수 있지만 크게 붐비지는 않아요. 도보 이동에 큰 제약이 없어요." + '</strong>');
+                            } else if (maxReport == "약간 붐빔") {
+                                $("#title").text(data.area_NM + '(' + maxReport + ')');
+                                if (data.area_CONGEST_LVL == "여유" || data.area_CONGEST_LVL == "보통") {
+//                                $("#report_explanation").text("시민제보로 인한 단계 격상");
+                                    $("#report_explanation").css("color", "red");
+                                } else {
+//                                $("#report_explanation").text("시민제보로 인한 하향 조정");
+                                    $("#report_explanation").css("color", "blue");
+                                }
+                                $("#explanation").html('<strong>' + "사람들이 몰려있을 가능성이 크고 붐빈다고 느낄 수 있어요. 인구밀도가 높은 구간에서는 도보 이동시 부딪힘이 발생할 수 있어요." + '</strong>');
+                            } else if (maxReport == "붐빔") {
+                                $("#title").text(data.area_NM + '(' + maxReport + ')');
+                                if (data.area_CONGEST_LVL == "여유" || data.area_CONGEST_LVL == "보통" || data.area_CONGEST_LVL == "약간 붐빔") {
+//                                $("#report_explanation").text("시민제보로 인한 단계 격상");
+                                    $("#report_explanation").css("color", "red");
+
+                                } else {
+//                                $("#report_explanation").text("시민제보로 인한 하향 조정");
+                                }
+                                $("#explanation").html('<strong>' + "사람들이 몰려있을 가능성이 매우 크고 많이 붐빈다고 느낄 수 있어요. 인구밀도가 높은 구간에서는 도보 이동시 부딪힘이 발생할 수 있어요." + '</strong>');
+                            } else if (maxReport == "여유") {
+
+                                if (data.area_CONGEST_LVL == "보통" || data.area_CONGEST_LVL == "약간 붐빔" || data.area_CONGEST_LVL == "붐빔") {
+//                                $("#report_explanation").text("시민제보로 인한 하향 조정");
+                                    $("#report_explanation").css("color", "blue");
+                                } else {
+                                    //                                $("#report_explanation").text("시민제보로 현 단계 유지");
+                                }
+                                $("#title").text(data.area_NM + '(' + maxReport + ')');
+                                $("#explanation").html('<strong>' + "사람이 몰려있을 가능성이 낮고 붐빔은 거의 느껴지지 않아요. 도보 이동이 자유로워요." + '</strong>');
+                            } else {
+                                $("#title").text(data.area_NM + '(' + data.area_CONGEST_LVL + ')');
+                                $("#report_explanation").text("시민제보 없음");
+                                $("#explanation").html('<strong>' + data.area_CONGEST_MSG + '</strong>');
+
+                            }
+                            if (data.fcst_PPLTN == null) {
+
+                                let id1 = document.getElementById('prediction_1');
+                                id1.style.display = 'none';
+
+                                doughnutChart(ctx2, data.female_PPLTN_RATE, data.male_PPLTN_RATE);
+
+                            } else {
+
+                                let id1 = document.getElementById('prediction_1');
+                                id1.style.display = "";
+
+                                console.log(data);
+
+                                barChart(ctx, data.fcst_PPLTN, data.area_NM);
+                                doughnutChart(ctx2, data.female_PPLTN_RATE, data.male_PPLTN_RATE);
+                            }
+                        }
+
+                    });
+                }
+            });
+        }
+        getSeoul(param);
+        /* 보여주기 종료 */
+
+        getMapMaker(map, ctx, ctx2, pos);
+        getTraffic(map);
+
+
+        /*geolocation 사용 현재 위치 반환 10분마다 실행*/
+        playAlert = setInterval(function () {
+            function getLocation() {
+                navigator.geolocation.getCurrentPosition(resultPosition)
+            }
+
+            getLocation();
+
+            function resultPosition(position) {
+                result = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                }
+
+                for (let i = 0; i < cityList.length; i++) {
+                    let start = new naver.maps.LatLng(result.lat, result.lng);
+                    let end = new naver.maps.LatLng(cityList[i].lat, cityList[i].lng);
+                    let proj = map.getProjection();
+                    let distance = proj.getDistance(start, end);
+
+                    if (parseInt(distance * 0.001) <= 3 && cityList[i].area_CONGEST_LVL == "약간 붐빔") {
+                        alert(cityList[i].area_NM + " 지역은 현재 도보에 주의가 필요합니다.");
+                        break;
+                    } else if (parseInt(distance * 0.001) <= 3 && cityList[i].area_CONGEST_LVL == "붐빔") {
+                        alert(cityList[i].area_NM + " 지역은 현재 밀집도가 매우 높습니다. 해당 지역 방문을 자제하세요.");
+                    }
+                }
+            }
+        }, 600000);
+    }
+
+    /* 마커 생성하기 */
+    function getMapMaker(map, ctx, ctx2, pos) {
+
+        let areaList = [[${cityDTOList}]]; // 주요도시 가져오기
+        let markers = new Array(); // 마커 정보 배열
+        let infoWindows = new Array(); // 정보창 배열
+        let circle;
+        let param = {};
+
+        for (let i = 0; i < areaList.length; i++) {
+            const position = new naver.maps.LatLng(areaList[i].lat, areaList[i].lng);
+
+            let url2;
+
+            console.log(areaList[i].area_NM);
+            console.log(areaList);
+
+            console.log(areaList[i].area_CONGEST_LVL + " /// " + i);
+            $.ajax({
+                url: "/crowd/getMaxReport",
+                data: {title: areaList[i].area_NM},
+                async: false,
+                type: 'post',
+                success: function (maxReport) {
+                    console.log("data" + maxReport);
+                    if (areaList[i].area_CONGEST_LVL == "여유" || areaList[i].area_CONGEST_LVL == "보통") {
+                        if (maxReport == "여유" || maxReport == "보통" || maxReport == "없음") {
+                            url2 = "/images/map/map_1.png";
+                        } else if (maxReport == "약간 붐빔") {
+                            url2 = "/images/map/map_2.png";
+                        } else {
+                            url2 = "/images/map/map_3.png";
+                        }
+                    } else if (areaList[i].area_CONGEST_LVL == "약간 붐빔") {
+                        if (maxReport == "여유" || maxReport == "보통") {
+                            url2 = "/images/map/map_1.png";
+                        } else if (maxReport == "약간 붐빔" || maxReport == "없음") {
+                            url2 = "/images/map/map_2.png";
+                        } else {
+                            url2 = "/images/map/map_3.png";
+                        }
+                    } else if (areaList[i].area_CONGEST_LVL == "붐빔") {
+                        if (maxReport == "여유" || maxReport == "보통") {
+                            url2 = "/images/map/map_1.png";
+                        } else if (maxReport == "약간 붐빔") {
+                            url2 = "/images/map/map_2.png";
+                        } else if (maxReport == "붐빔" || maxReport == "없음") {
+                            url2 = "/images/map/map_3.png";
+                        }
+                    } else {
+                        url2 = "/images/map/map_1.png";
+                    }
+                }, error: function () {
+                    console.log("터지낟!")
+                }
+            });
+            // if (areaList[i].area_CONGEST_LVL == "여유" || areaList[i].area_CONGEST_LVL == "보통") {
+            //     url2 = "/images/map/map_1.png";
+            // } else if (areaList[i].area_CONGEST_LVL == "약간 붐빔") {
+            //     url2 = "/images/map/map_2.png";
+            // } else {
+            //     url2 = "/images/map/map_3.png";
+            // }
+
+            console.log(url2);
+
+            const marker = new naver.maps.Marker({
+                map: map,
+                position: position,
+                title: areaList[i].location,
+                icon: {
+                    url: url2,
+                    // size: new naver.maps.Size(22, 35),
+                }
+            });
+            const infoWindow = new naver.maps.InfoWindow({
+                content: '<div style="width:200px;text-align:center;padding:10px;"><b>' + areaList[i].location + '</b><br></div>'
+            });
+            marker.addListener('click', () => {
+
+
+                if (infoWindow.getMap()) {
+                    infoWindow.close();
+                    circle.setMap(null);
+                    circle = null;
+                } else {
+
+                    infoWindow.open(map, marker);
+                    circle = new naver.maps.Circle({
+                        map: map,
+                        center: new naver.maps.LatLng(marker.position.y, marker.position.x),
+                        radius: 1000,
+                        fillColor: 'green',
+                        fillOpacity: 0.3
+                    });
+                    console.log(marker.title);
+                    param2 = {
+                        title: marker.title
+                    };
+                    /* 마커 찍으면 해당하는 인구밀집도 그래프 그려주기*/
+                    $.ajax({
+                        url: "/crowd/getSeoulApi",
+                        data: param2,
+                        type: 'post',
+                        success: function (data) {
+                            $.ajax({
+                                url: "/crowd/getMaxReport",
+                                data: param,
+                                type: 'post',
+                                success: function (maxReport) {
+                                    if (maxReport == "보통") {
+                                        $("#title").text(data.area_NM + '(' + maxReport + ')');
+                                        if (areaList[i].area_CONGEST_LVL == "여유") {
+                                            //                                $("#report_explanation").text("시민제보로 인한 단계 격상");
+                                            $("#report_explanation").css("color", "red");
+
+                                        } else {
+                                            //                                $("#report_explanation").text("시민제보로 인한 하향 조정");
+                                            $("#report_explanation").css("color", "blue");
+                                        }
+                                        $("#explanation").html('<strong>' + "사람이 몰려있을 수 있지만 크게 붐비지는 않아요. 도보 이동에 큰 제약이 없어요." + '</strong>');
+                                    } else if (maxReport == "약간 붐빔") {
+                                        $("#title").text(data.area_NM + '(' + maxReport + ')');
+                                        if (areaList[i].area_CONGEST_LVL == "여유" || areaList[i].area_CONGEST_LVL == "보통") {
+                                            //                                $("#report_explanation").text("시민제보로 인한 단계 격상");
+                                            $("#report_explanation").css("color", "red");
+                                        } else {
+                                            //                                $("#report_explanation").text("시민제보로 인한 하향 조정");
+                                            $("#report_explanation").css("color", "blue");
+                                        }
+                                        $("#explanation").html('<strong>' + "사람들이 몰려있을 가능성이 크고 붐빈다고 느낄 수 있어요. 인구밀도가 높은 구간에서는 도보 이동시 부딪힘이 발생할 수 있어요." + '</strong>');
+                                    } else if (maxReport == "붐빔") {
+                                        $("#title").text(data.area_NM + '(' + maxReport + ')');
+                                        if (areaList[i].area_CONGEST_LVL == "여유" || areaList[i].area_CONGEST_LVL == "보통" || areaList[i].area_CONGEST_LVL == "약간 붐빔") {
+                                            //                                $("#report_explanation").text("시민제보로 인한 단계 격상");
+                                            $("#report_explanation").css("color", "red");
+
+                                        } else {
+                                            //                                $("#report_explanation").text("시민제보로 인한 하향 조정");
+                                        }
+                                        $("#explanation").html('<strong>' + "사람들이 몰려있을 가능성이 매우 크고 많이 붐빈다고 느낄 수 있어요. 인구밀도가 높은 구간에서는 도보 이동시 부딪힘이 발생할 수 있어요." + '</strong>');
+                                    } else if (maxReport == "여유") {
+
+                                        if (areaList[i].area_CONGEST_LVL == "보통" || areaList[i].area_CONGEST_LVL == "약간 붐빔" || areaList[i].area_CONGEST_LVL == "붐빔") {
+                                            //                                $("#report_explanation").text("시민제보로 인한 하향 조정");
+                                            $("#report_explanation").css("color", "blue");
+                                        } else {
+                                            //                                $("#report_explanation").text("시민제보로 현 단계 유지");
+                                        }
+
+                                        $("#title").text(data.area_NM + '(' + maxReport + ')');
+                                        $("#explanation").html('<strong>' + "사람이 몰려있을 가능성이 낮고 붐빔은 거의 느껴지지 않아요. 도보 이동이 자유로워요." + '</strong>');
+                                    } else {
+                                        $("#title").text(data.area_NM + '(' + data.area_CONGEST_LVL + ')');
+                                        $("#explanation").html('<strong>' + data.area_CONGEST_MSG + '</strong>');
+
+                                    }
+                                    if (data.fcst_PPLTN == null) {
+
+                                        let id1 = document.getElementById('prediction_1');
+                                        id1.style.display = 'none';
+
+                                        doughnutChart(ctx2, data.female_PPLTN_RATE, data.male_PPLTN_RATE);
+
+                                    } else {
+
+                                        let id1 = document.getElementById('prediction_1');
+                                        id1.style.display = "";
+
+                                        barChart(ctx, data.fcst_PPLTN, data.area_NM);
+                                        doughnutChart(ctx2, data.female_PPLTN_RATE, data.male_PPLTN_RATE);
+                                    }
+                                }
+
+                            });
+
+                            if (data.fcst_PPLTN == null) {
+                                let id1 = document.getElementById('prediction_1');
+                                let prediction_title = document.getElementById("prediction_title");
+
+                                prediction_title.style.display = 'none';
+                                id1.style.display = 'none';
+                            } else {
+                                let id1 = document.getElementById('prediction_1');
+                                let prediction_title = document.getElementById("prediction_title");
+
+                                prediction_title.style.display = '';
+                                id1.style.display = '';
+                                barChart(ctx, data.fcst_PPLTN, data.area_NM);
+                                doughnutChart(ctx2, data.female_PPLTN_RATE, data.male_PPLTN_RATE);
+                            }
+
+                        }
+
+                    });
+
+                    /* 마커 클릭시 DB에서 제보 내용 조회*/
+                    $.ajax({
+                        url: "/crowd/getReportList",
+                        data: param2,
+                        type: 'post',
+                        success: function (data) {
+                            if (data != null) {
+                                $("#appendDiv").empty();
+
+                                for (let i = 0; i < data.length; i++) {
+                                    let appendDiv = "";
+                                    appendDiv += '<div class="col-md-6 col-lg-6 col-xl-12 pl0 pr0">';
+                                    appendDiv += '<div class="feat_property">';
+                                    appendDiv += '<div class="thumb">';
+                                    appendDiv += '<img class="img-whp" src="' + data[i].filePath + '" alt="lg2.jpg">';
+                                    appendDiv += '<div class="thmb_cntnt">';
+                                    appendDiv += '<ul class="tag2 mb0">';
+                                    appendDiv += '<li class="list-inline-item">';
+                                    if (data[i].density == "여유") {
+                                        appendDiv += '<a href="#" style="background-color: green; text-decoration-line: none;">여유</a>';
+                                    } else if (data[i].density == "보통") {
+                                        appendDiv += '<a href="#" style="background-color: green; text-decoration-line: none;">보통</a>';
+                                    } else if (data[i].density == "약간 붐빔") {
+                                        appendDiv += '<a href="#" style="background-color: orange; text-decoration-line: none;">약간 붐빔</a>';
+                                    } else {
+                                        appendDiv += '<a href="#" style="background-color: red; text-decoration-line: none;">붐빔</a>';
+                                    }
+                                    appendDiv += '</li>';
+                                    appendDiv += '</ul>';
+                                    appendDiv += '</div>';
+                                    appendDiv += '</div>';
+                                    appendDiv += '<div class="details">';
+                                    appendDiv += '<div class="tc_content">';
+                                    appendDiv += '<p> 소속 : ' + data[i].belong + '</p>';
+                                    appendDiv += '<p> 성명 : ' + data[i].name + '</p>';
+                                    appendDiv += '<p> 전화번호 : ' + data[i].phone + '</p>';
+                                    appendDiv += '<p> 제보일 : ' + data[i].reportDT + '</p>';
+                                    appendDiv += '</div>';
+                                    appendDiv += '</div>';
+                                    appendDiv += '</div>';
+                                    appendDiv += '</div>';
+
+                                    $("#appendDiv").append(appendDiv);
+                                }
+                            }
+
+                        }
+                    });
+
+
+                }
+            });
+            markers.push(marker);
+            infoWindows.push(infoWindow);
+        }
+        const marker = new naver.maps.Marker({
+            map: map,
+            position: new naver.maps.LatLng(pos.coords.latitude, pos.coords.longitude),
+            title: "내위치",
+            icon: {
+                url: "/images/map/dat.png"
+                // size: new naver.maps.Size(22, 35),
+            }
+        });
+        markers.push(marker);
+    }
+
+    /* 교통정보 가져오기 */
+    function getTraffic(map) {
+        let trafficLayer = new naver.maps.TrafficLayer({
+            interval: 300000 // 5분마다 새로고침 (최소값 5분)
+        });
+
+        let btn = $('#traffic');
+
+        /* 교통정보 지도 표시 */
+        naver.maps.Event.addListener(map, 'trafficLayer_changed', function (trafficLayer) {
+            if (trafficLayer) {
+                btn.addClass('control-on');
+                $("#autorefresh").parent().show();
+                $("#autorefresh")[0].checked = true;
+            } else {
+                btn.removeClass('control-on');
+                $("#autorefresh").parent().hide();
+            }
+        });
+
+        btn.on("click", function (e) {
+            e.preventDefault();
+
+            if (trafficLayer.getMap()) {
+                trafficLayer.setMap(null);
+            } else {
+                trafficLayer.setMap(map);
+            }
+        });
+
+        $("#autorefresh").on("click", function (e) {
+            let btn = $(this),
+                checked = btn.is(":checked");
+
+            if (checked) {
+                trafficLayer.startAutoRefresh();
+            } else {
+                trafficLayer.endAutoRefresh();
+            }
+        });
+
+        naver.maps.Event.once(map, 'init', function () {
+            trafficLayer.setMap(map);
+        });
+
+
+    }
+</script>
+</body>
+</html>
