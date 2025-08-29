@@ -22,7 +22,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- HTML5 shim and Respond.js for IE8 asupport of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -270,7 +270,7 @@
                         data: param,
                         type: 'post',
                         success: function (maxReport) {
-                            test();
+                            alarm();
                             $.ajax({
                                 url: "/crowd/getReportList",
                                 data: param,
@@ -318,7 +318,7 @@
 
                                 }
                             });
-                            function test() {
+                            function alarm() {
                                 for (let i = 0; i < cityList.length; i++) {
                                     let proj = map.getProjection();
                                     let end = new naver.maps.LatLng(cityList[i].lat, cityList[i].lng);
@@ -328,13 +328,14 @@
                                     let con = 2;
 
                                     console.log(param.title);
-                                    if ((distance <= con && maxReport == "약간 붐빔" && param.title == cityList[i].area_NM) || (distance <= con && cityList[i].area_CONGEST_LVL == "약간 붐빔" && param.title == cityList[i].area_NM)) {
-                                        // console.log("거리 : " + distance, "city : " + cityList[i].area_CONGEST_LVL +' maxReport : ' + maxReport +'어디냐 : ' + cityList[i].area_NM);
-
+                                    if ((distance <= con && maxReport == "약간 붐빔" && param.title == cityList[i].area_NM) ||
+                                        (distance <= con && cityList[i].area_CONGEST_LVL == "약간 붐빔" && param.title == cityList[i].area_NM)) {
+                                        console.log("거리 : " + distance, "city : " + cityList[i].area_CONGEST_LVL +
+                                            ', maxReport : ' + maxReport +', 장소명 : ' + cityList[i].area_NM);
                                         alert(cityList[i].area_NM + " 지역은 현재 도보에 주의가 필요합니다.");
-                                    } else if ((distance <= con && maxReport == "붐빔" && param.title == cityList[i].area_NM) || (distance <= con && cityList[i].area_CONGEST_LVL == "붐빔" && param.title == cityList[i].area_NM)) {
+                                    } else if ((distance <= con && maxReport == "붐빔" && param.title == cityList[i].area_NM) ||
+                                        (distance <= con && cityList[i].area_CONGEST_LVL == "붐빔" && param.title == cityList[i].area_NM)) {
                                         alert(cityList[i].area_NM + " 지역은 현재 밀집도가 매우 높습니다. 해당 지역 방문을 자제하세요.");
-
 
                                     }
                                 }
@@ -344,32 +345,32 @@
                             if (maxReport == "보통") {
                                 $("#title").text(data.area_NM + '(' + maxReport + ')');
                                 if (data.area_CONGEST_LVL == "여유") {
-//                                $("#report_explanation").text("시민제보로 인한 단계 격상");
+                                    $("#report_explanation").text("시민제보로 인한 단계 격상");
                                     $("#report_explanation").css("color", "red");
 
                                 } else {
-//                                $("#report_explanation").text("시민제보로 인한 하향 조정");
+                                    $("#report_explanation").text("시민제보로 인한 하향 조정");
                                     $("#report_explanation").css("color", "blue");
                                 }
                                 $("#explanation").html('<strong>' + "사람이 몰려있을 수 있지만 크게 붐비지는 않아요. 도보 이동에 큰 제약이 없어요." + '</strong>');
                             } else if (maxReport == "약간 붐빔") {
                                 $("#title").text(data.area_NM + '(' + maxReport + ')');
                                 if (data.area_CONGEST_LVL == "여유" || data.area_CONGEST_LVL == "보통") {
-//                                $("#report_explanation").text("시민제보로 인한 단계 격상");
+                                    $("#report_explanation").text("시민제보로 인한 단계 격상");
                                     $("#report_explanation").css("color", "red");
                                 } else {
-//                                $("#report_explanation").text("시민제보로 인한 하향 조정");
+                                    $("#report_explanation").text("시민제보로 인한 하향 조정");
                                     $("#report_explanation").css("color", "blue");
                                 }
                                 $("#explanation").html('<strong>' + "사람들이 몰려있을 가능성이 크고 붐빈다고 느낄 수 있어요. 인구밀도가 높은 구간에서는 도보 이동시 부딪힘이 발생할 수 있어요." + '</strong>');
                             } else if (maxReport == "붐빔") {
                                 $("#title").text(data.area_NM + '(' + maxReport + ')');
                                 if (data.area_CONGEST_LVL == "여유" || data.area_CONGEST_LVL == "보통" || data.area_CONGEST_LVL == "약간 붐빔") {
-//                                $("#report_explanation").text("시민제보로 인한 단계 격상");
+                                    $("#report_explanation").text("시민제보로 인한 단계 격상");
                                     $("#report_explanation").css("color", "red");
 
                                 } else {
-//                                $("#report_explanation").text("시민제보로 인한 하향 조정");
+                                    $("#report_explanation").text("시민제보로 인한 하향 조정");
                                 }
                                 $("#explanation").html('<strong>' + "사람들이 몰려있을 가능성이 매우 크고 많이 붐빈다고 느낄 수 있어요. 인구밀도가 높은 구간에서는 도보 이동시 부딪힘이 발생할 수 있어요." + '</strong>');
                             } else if (maxReport == "여유") {
@@ -389,17 +390,14 @@
 
                             }
                             if (data.fcst_PPLTN == null) {
-
                                 let id1 = document.getElementById('prediction_1');
                                 id1.style.display = 'none';
 
                                 doughnutChart(ctx2, data.female_PPLTN_RATE, data.male_PPLTN_RATE);
 
                             } else {
-
                                 let id1 = document.getElementById('prediction_1');
                                 id1.style.display = "";
-
                                 console.log(data);
 
                                 barChart(ctx, data.fcst_PPLTN, data.area_NM);
@@ -607,14 +605,11 @@
 
                                     }
                                     if (data.fcst_PPLTN == null) {
-
                                         let id1 = document.getElementById('prediction_1');
                                         id1.style.display = 'none';
-
                                         doughnutChart(ctx2, data.female_PPLTN_RATE, data.male_PPLTN_RATE);
 
                                     } else {
-
                                         let id1 = document.getElementById('prediction_1');
                                         id1.style.display = "";
 
@@ -631,6 +626,7 @@
 
                                 prediction_title.style.display = 'none';
                                 id1.style.display = 'none';
+                                doughnutChart(ctx2, data.female_PPLTN_RATE, data.male_PPLTN_RATE);
                             } else {
                                 let id1 = document.getElementById('prediction_1');
                                 let prediction_title = document.getElementById("prediction_title");
